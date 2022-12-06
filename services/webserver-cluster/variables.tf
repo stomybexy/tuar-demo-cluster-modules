@@ -33,3 +33,9 @@ variable "server_port" {
   description = "The port the server will listen on"
   default     = 8080
 }
+
+variable "custom_tags" {
+  description = "A map of tags to add to EC2 instances created by ASG"
+  type        = map(string)
+  default     = {}
+}

@@ -25,7 +25,7 @@ resource "aws_launch_configuration" "web" {
   image_id        = "ami-0b24feb030d5e3f22"
   instance_type   = var.instance_type
   security_groups = [aws_security_group.web.id]
-  user_data = templatefile("${path.module}/user-data.sh", {
+  user_data       = templatefile("${path.module}/user-data.sh", {
     server_port = var.server_port
     db_address  = var.db_address
     db_port     = var.db_port
@@ -46,6 +46,14 @@ resource "aws_autoscaling_group" "web" {
     key                 = "Name"
     propagate_at_launch = true
     value               = "${var.cluster_name}-asg"
+  }
+  dynamic "tag" {
+    for_each = var.custom_tags
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
   }
 }
 
