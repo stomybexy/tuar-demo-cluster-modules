@@ -43,13 +43,23 @@ resource "aws_autoscaling_group" "web" {
   health_check_type    = "ELB"
   min_size             = var.min_size
   max_size             = var.max_size
+  # use instance refresh to natively rollout new instances
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+    }
+  }
   tag {
     key                 = "Name"
     propagate_at_launch = true
     value               = "${var.cluster_name}-asg"
   }
   dynamic "tag" {
-    for_each = var.custom_tags
+    for_each = {
+      for k, v in var.custom_tags :
+      k => upper(v) if k != "Name"
+    }
     content {
       key                 = tag.key
       value               = tag.value
