@@ -57,7 +57,6 @@ resource "aws_autoscaling_group" "web" {
   }
 }
 
-
 resource "aws_security_group" "lb" {
   name = "${var.cluster_name}-lb-sg"
 }
@@ -78,6 +77,29 @@ resource "aws_security_group_rule" "lb_egress" {
   protocol          = local.any_protocol
   to_port           = local.any_port
   cidr_blocks       = local.all_ips
+}
+
+
+resource "aws_autoscaling_schedule" "scale_out" {
+  count                  = var.enable_autoscaling ? 1 : 0
+  autoscaling_group_name = aws_autoscaling_group.web.name
+  scheduled_action_name  = "scale-out-during-business-hours"
+  min_size               = 2
+  max_size               = 10
+  desired_capacity       = 5
+  recurrence             = "0 9 * * 1-5"
+  time_zone              = "Europe/London"
+}
+
+resource "aws_autoscaling_schedule" "scale_in" {
+  count                  = var.enable_autoscaling ? 1 : 0
+  autoscaling_group_name = aws_autoscaling_group.web.name
+  scheduled_action_name  = "scale-in-at-night"
+  min_size               = 2
+  max_size               = 10
+  desired_capacity       = 2
+  recurrence             = "0 17 * * 1-5"
+  time_zone              = "Europe/London"
 }
 
 resource "aws_lb" "lb" {

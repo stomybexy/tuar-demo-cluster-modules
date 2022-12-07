@@ -28,6 +28,11 @@ variable "max_size" {
   type        = number
 }
 
+variable "enable_autoscaling" {
+  description = "Whether to enable autoscaling for the cluster"
+  type        = bool
+}
+
 variable "server_port" {
   type        = number
   description = "The port the server will listen on"
