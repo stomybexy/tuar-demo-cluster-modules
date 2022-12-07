@@ -22,13 +22,14 @@ resource "aws_security_group_rule" "web_ingress" {
 }
 
 resource "aws_launch_configuration" "web" {
-  image_id        = "ami-0b24feb030d5e3f22"
+  image_id        = var.ami
   instance_type   = var.instance_type
   security_groups = [aws_security_group.web.id]
   user_data       = templatefile("${path.module}/user-data.sh", {
     server_port = var.server_port
     db_address  = var.db_address
     db_port     = var.db_port
+    greeting    = var.greeting
   })
   lifecycle {
     create_before_destroy = true # Required when using with autoscaling group
