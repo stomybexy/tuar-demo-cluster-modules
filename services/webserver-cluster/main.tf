@@ -37,19 +37,31 @@ resource "aws_launch_configuration" "web" {
 }
 
 resource "aws_autoscaling_group" "web" {
+  # Depend explicitly to launch configuration to recreate the asg
+  # when the launch configuration is replaced
+  name                 = "${var.cluster_name}-${aws_launch_configuration.web.name}"
   launch_configuration = aws_launch_configuration.web.name
   vpc_zone_identifier  = data.aws_subnets.default.ids
   target_group_arns    = [aws_lb_target_group.lb.arn]
   health_check_type    = "ELB"
   min_size             = var.min_size
   max_size             = var.max_size
+  # Wait for minimum count of new instances to be healthy
+  # before terminating old ones
+  min_elb_capacity     = var.min_size
+  lifecycle {
+    create_before_destroy = true # For zero downtime deployment
+  }
   tag {
     key                 = "Name"
     propagate_at_launch = true
     value               = "${var.cluster_name}-asg"
   }
   dynamic "tag" {
-    for_each = var.custom_tags
+    for_each = {
+      for k, v in var.custom_tags :
+      k => upper(v) if k != "Name"
+    }
     content {
       key                 = tag.key
       value               = tag.value
