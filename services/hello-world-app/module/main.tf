@@ -10,7 +10,7 @@ terraform {
 
 
 module "asg" {
-  source             = "../../../cluster/asg-rolling-deploy"
+  source             = "../../../cluster/asg-rolling-deploy/module"
   cluster_name       = "hello-world-${var.environment}"
   enable_autoscaling = var.enable_autoscaling
   ami                = var.ami
@@ -31,7 +31,7 @@ module "asg" {
 }
 
 module "alb" {
-  source = "../../../networking/alb"
+  source = "../../../networking/alb/module"
   alb_name = "hello-world-${var.environment}"
   subnet_ids = data.aws_subnets.default.ids
 }

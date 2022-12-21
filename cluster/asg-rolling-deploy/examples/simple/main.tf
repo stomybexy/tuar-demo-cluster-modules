@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 module "asg" {
-  source             = "../.."
+  source             = "../../module"
   ami                = data.aws_ami.ubuntu.id
   cluster_name       = var.cluster_name
   enable_autoscaling = false
