@@ -1,3 +1,21 @@
+variable "id_prefix" {
+  default     = ""
+  type        = string
+  description = "The prefix to use for the ID of the resource"
+}
+
+variable "allocated_storage" {
+  default     = 10
+  type        = number
+  description = "The allocated storage in gigabytes"
+}
+
+variable "instance_class" {
+  default     = "db.t2.micro"
+  type        = string
+  description = "The instance class to use"
+}
+
 variable "db_username" {
   description = "The username for the database"
   type        = string
