@@ -17,9 +17,9 @@ module "asg" {
   ami                = data.aws_ami.ubuntu.id
   cluster_name       = var.cluster_name
   enable_autoscaling = false
-  instance_type      = "t2.micro"
-  max_size           = 1
-  min_size           = 1
+  instance_type      = var.instance_type
+  max_size           = var.max_size
+  min_size           = var.min_size
   subnet_ids         = data.aws_subnets.default.ids
 }
 

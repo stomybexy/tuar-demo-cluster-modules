@@ -21,6 +21,9 @@ resource "aws_security_group_rule" "web_ingress" {
   cidr_blocks       = local.all_ips
 }
 
+data "aws_ec2_instance_type" "web" {
+  instance_type = var.instance_type
+}
 
 resource "aws_launch_configuration" "web" {
   image_id        = var.ami
@@ -29,16 +32,28 @@ resource "aws_launch_configuration" "web" {
   user_data       = var.user_data
   lifecycle {
     create_before_destroy = true # Required when using with autoscaling group
+    precondition {
+      condition     = data.aws_ec2_instance_type.web.free_tier_eligible
+      error_message = "Instance type ${var.instance_type} is not eligible for free tier usage."
+    }
   }
 }
 
 resource "aws_autoscaling_group" "web" {
   launch_configuration = aws_launch_configuration.web.name
   vpc_zone_identifier  = var.subnet_ids
-  target_group_arns    = var.target_group_arns
-  health_check_type    = var.health_check_type
-  min_size             = var.min_size
-  max_size             = var.max_size
+
+  lifecycle {
+    postcondition {
+      condition     = length(self.availability_zones) > 1
+      error_message = "ASG must span at least 2 availability zones for high availability."
+    }
+  }
+
+  target_group_arns = var.target_group_arns
+  health_check_type = var.health_check_type
+  min_size          = var.min_size
+  max_size          = var.max_size
   # use instance refresh to natively rollout new instances
   instance_refresh {
     strategy = "Rolling"

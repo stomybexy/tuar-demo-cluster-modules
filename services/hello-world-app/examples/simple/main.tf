@@ -18,6 +18,12 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "instance_type" {
+  description = "The type of instance to use."
+  type        = string
+  default     = "t2.micro"
+}
+
 module "db" {
   source      = "../../../../datastores/mysql/module"
   id_prefix   = "hello-app-"
@@ -32,10 +38,10 @@ module "app" {
   db_port            = module.db.db_port
   enable_autoscaling = false
   environment        = "test"
-  instance_type      = "t2.micro"
+  instance_type      = var.instance_type
   max_size           = 1
   min_size           = 1
-  greeting           = "Hello Buddy! \nWhat a wonderful time to be an entrepreneur!"
+  greeting           = "Hello Buddy! What a wonderful time to be an entrepreneur!"
 }
 
 output "server_url" {

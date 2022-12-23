@@ -11,11 +11,29 @@ variable "instance_type" {
 variable "min_size" {
   description = "The minimum number of nodes in the cluster"
   type        = number
+
+  validation {
+    condition     = var.min_size >= 1
+    error_message = "The minimum size must be at least 1, or we'll have an outage."
+  }
+  validation {
+    condition     = var.min_size <= 10
+    error_message = "ASG size must be less than 10 to keep costs down."
+  }
 }
 
 variable "max_size" {
   description = "The maximum number of nodes in the cluster"
   type        = number
+
+  validation {
+    condition     = var.max_size >= 1
+    error_message = "The maximum size must be at least 1, or we'll have an outage."
+  }
+  validation {
+    condition     = var.max_size <= 10
+    error_message = "ASG size must be less than 10 to keep costs down."
+  }
 }
 
 variable "enable_autoscaling" {
