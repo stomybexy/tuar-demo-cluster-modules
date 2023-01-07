@@ -1,0 +1,3 @@
+#!/bin/sh
+
+go test -parallel 2 -timeout 30m ./...

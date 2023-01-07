@@ -12,36 +12,34 @@ provider "aws" {
   region = "eu-west-1" # Ireland
 }
 
-variable "db_password" {
-  description = "The password for the root DB user."
+variable "environment" {
   type        = string
-  sensitive   = true
+  description = "The environment to deploy to"
+  default     = "test"
 }
 
-variable "instance_type" {
-  description = "The type of instance to use."
-  type        = string
-  default     = "t2.micro"
-}
-
-module "db" {
-  source      = "../../../../datastores/mysql/module"
-  id_prefix   = "hello-app-"
-  db_name     = "hello_app_db"
-  db_username = "root"
-  db_password = var.db_password
+variable "db_config" {
+  description = "The database configuration."
+  type        = object({
+    db_address = string
+    db_port    = number
+  })
+  default = {
+    db_address = "mock-mysql-db-address"
+    db_port    = 3306
+  }
 }
 
 module "app" {
   source             = "../../module"
-  db_address         = module.db.db_address
-  db_port            = module.db.db_port
+  // Pass all the outputs from the mysql module straight through!
+  db_config          = var.db_config
   enable_autoscaling = false
-  environment        = "test"
-  instance_type      = var.instance_type
+  environment        = var.environment
+  instance_type      = "t2.micro"
   max_size           = 1
   min_size           = 1
-  greeting           = "Hello Buddy! What a wonderful time to be an entrepreneur!"
+  greeting           = "Hello Dude! What a wonderful time to be an entrepreneur!"
 }
 
 output "server_url" {

@@ -3,14 +3,13 @@ variable "environment" {
   type        = string
 }
 
-variable "db_address" {
-  description = "The address of the database"
-  type        = string
-}
-
-variable "db_port" {
-  description = "The port of the database"
-  type        = number
+variable "db_config" {
+  description = "The database configuration."
+  type        = object({
+    db_address = string
+    db_port    = number
+  })
+  default = null
 }
 
 variable "instance_type" {
@@ -48,7 +47,7 @@ variable "custom_tags" {
 variable "ami" {
   description = "The AMI to use for the cluster"
   type        = string
-  default     = "ami-0b24feb030d5e3f22"
+  default     = null
 }
 
 variable "greeting" {

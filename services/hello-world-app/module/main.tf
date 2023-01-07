@@ -13,12 +13,12 @@ module "asg" {
   source             = "../../../cluster/asg-rolling-deploy/module"
   cluster_name       = "hello-world-${var.environment}"
   enable_autoscaling = var.enable_autoscaling
-  ami                = var.ami
+  ami                = local.ami
   instance_type      = var.instance_type
   user_data          = templatefile("${path.module}/user-data.sh", {
     server_port = var.server_port
-    db_address  = var.db_address
-    db_port     = var.db_port
+    db_address  = var.db_config.db_address
+    db_port     = var.db_config.db_port
     greeting    = var.greeting
   })
   server_port       = var.server_port
@@ -31,8 +31,8 @@ module "asg" {
 }
 
 module "alb" {
-  source = "../../../networking/alb/module"
-  alb_name = "hello-world-${var.environment}"
+  source     = "../../../networking/alb/module"
+  alb_name   = "hello-world-${var.environment}"
   subnet_ids = data.aws_subnets.default.ids
 }
 
