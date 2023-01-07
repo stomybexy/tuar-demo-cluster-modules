@@ -2,7 +2,7 @@ package tests
 
 import (
 	"fmt"
-	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
+	httpHelper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"strings"
@@ -34,7 +34,7 @@ func TestHelloWorldAppSimpleExample(t *testing.T) {
 	timeBetweenRetries := 10 * time.Second
 
 	// Test that the server is up and running
-	http_helper.HttpGetWithRetryWithCustomValidation(
+	httpHelper.HttpGetWithRetryWithCustomValidation(
 		t,
 		url,
 		nil,
