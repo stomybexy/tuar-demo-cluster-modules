@@ -2,7 +2,7 @@ package tests
 
 import (
 	"fmt"
-	httpHelper "github.com/gruntwork-io/terratest/modules/http-helper"
+	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"strings"
@@ -10,18 +10,20 @@ import (
 	"time"
 )
 
-func TestHelloWorldAppSimple(t *testing.T) {
+func TestHelloWorldAppWithDb(t *testing.T) {
 	t.Parallel()
 
+	dbName := fmt.Sprintf("testdb%s", random.UniqueId())
+	greeting := "Hi there!"
 	opts := &terraform.Options{
-		TerraformDir: "../examples/simple",
+		TerraformDir: "../examples/withdb",
 
 		Vars: map[string]interface{}{
-			"db_config": map[string]interface{}{
-				"db_address": "dummy-mysql-server",
-				"db_port":    3306,
-			},
 			"environment": fmt.Sprintf("test-%s", random.UniqueId()),
+			"greeting":    greeting,
+			"db_username": "test",
+			"db_password": fmt.Sprintf("test123%s", random.UniqueId()),
+			"db_name":     dbName,
 		},
 	}
 	// Clean up everything at the end of the test
@@ -29,12 +31,12 @@ func TestHelloWorldAppSimple(t *testing.T) {
 	terraform.InitAndApply(t, opts)
 
 	url := terraform.OutputRequired(t, opts, "server_url")
+	dbAddress := terraform.OutputRequired(t, opts, "db_address")
 
 	maxRetries := 10
 	timeBetweenRetries := 10 * time.Second
 
-	// Test that the server is up and running
-	httpHelper.HttpGetWithRetryWithCustomValidation(
+	http_helper.HttpGetWithRetryWithCustomValidation(
 		t,
 		url,
 		nil,
@@ -42,8 +44,8 @@ func TestHelloWorldAppSimple(t *testing.T) {
 		timeBetweenRetries,
 		func(status int, body string) bool {
 			return status == 200 &&
-				strings.Contains(body, "Hello Dude!") &&
-				strings.Contains(body, "dummy-mysql-server")
+				strings.Contains(body, greeting) &&
+				strings.Contains(body, dbAddress)
 		},
 	)
 }
